@@ -31,8 +31,8 @@ LABEL description="Producción optimizada frontend SPA en Nginx Alpine"
 # Eliminar configuración predeterminada de Nginx
 RUN rm -rf /etc/nginx/conf.d/* /usr/share/nginx/html/*
 
-# Copiar configuración personalizada de Nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copiar configuración personalizada de Nginx (como template para envsubst)
+COPY nginx.conf /etc/nginx/templates/default.conf.template
 
 # Copiar bundle compilado desde el builder
 COPY --from=builder /app/dist /usr/share/nginx/html
