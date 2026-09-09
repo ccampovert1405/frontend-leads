@@ -20,6 +20,7 @@ export const UsersManagementView: React.FC = () => {
   // Form state
   const [formUsername, setFormUsername] = useState('');
   const [formPassword, setFormPassword] = useState('');
+  const [showFormPassword, setShowFormPassword] = useState(false);
   const [formRoleId, setFormRoleId] = useState('');
   const [formIsActive, setFormIsActive] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -50,6 +51,7 @@ export const UsersManagementView: React.FC = () => {
     setEditingUser(null);
     setFormUsername('');
     setFormPassword('');
+    setShowFormPassword(false);
     setFormRoleId(roles.length > 0 ? roles[0].rolId : '');
     setFormIsActive(true);
     setIsModalOpen(true);
@@ -59,6 +61,7 @@ export const UsersManagementView: React.FC = () => {
     setEditingUser(u);
     setFormUsername(u.username);
     setFormPassword(''); // Opcional al editar
+    setShowFormPassword(false);
     setFormRoleId(u.rol?.rolId || '');
     setFormIsActive(u.isActive);
     setIsModalOpen(true);
@@ -442,14 +445,26 @@ export const UsersManagementView: React.FC = () => {
                   <span className="material-symbols-outlined">lock</span>
                   <input
                     id="userFormPassword"
-                    type="password"
+                    type={showFormPassword ? 'text' : 'password'}
                     required={!editingUser}
                     minLength={6}
                     value={formPassword}
                     onChange={(e) => setFormPassword(e.target.value)}
                     placeholder={editingUser ? '•••••••• (dejar en blanco para conservar actual)' : 'Mínimo 6 caracteres'}
                     className="input-field"
+                    style={{ paddingRight: '40px' }}
                   />
+                  <button
+                    type="button"
+                    className="password-toggle-btn"
+                    onClick={() => setShowFormPassword(!showFormPassword)}
+                    tabIndex={-1}
+                    title={showFormPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                  >
+                    <span className="material-symbols-outlined">
+                      {showFormPassword ? 'visibility_off' : 'visibility'}
+                    </span>
+                  </button>
                 </div>
                 {editingUser && (
                   <span className="form-hint">

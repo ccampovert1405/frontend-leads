@@ -6,6 +6,7 @@ export const LoginView: React.FC = () => {
   const { login } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -192,13 +193,13 @@ export const LoginView: React.FC = () => {
             </label>
             <div style={{ position: 'relative' }}>
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 className="precision-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="••••••••"
-                style={{ paddingLeft: '38px' }}
+                style={{ paddingLeft: '38px', paddingRight: '40px' }}
               />
               <span
                 className="material-symbols-outlined"
@@ -209,10 +210,22 @@ export const LoginView: React.FC = () => {
                   transform: 'translateY(-50%)',
                   color: '#8c919d',
                   fontSize: '20px',
+                  pointerEvents: 'none',
                 }}
               >
                 lock
               </span>
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex={-1}
+                title={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+              >
+                <span className="material-symbols-outlined">
+                  {showPassword ? 'visibility_off' : 'visibility'}
+                </span>
+              </button>
             </div>
           </div>
 
