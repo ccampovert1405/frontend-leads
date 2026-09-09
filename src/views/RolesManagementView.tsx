@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { rolesApi, permissionsApi, menusApi, RoleDto, PermissionDto, MenuDto } from '../services/api';
 
+export const SECTION_LABEL_MAP: Record<string, string> = {
+  Principal: 'Reportes & Analítica de Rendimiento',
+  Operaciones: 'Gestión & Operaciones de Leads',
+  Variables: 'Variables del Sistema',
+  Administracion: 'Seguridad & Control de Acceso',
+  Plataforma: 'Plataforma & Integraciones',
+};
+
 export const RolesManagementView: React.FC = () => {
   const [roles, setRoles] = useState<RoleDto[]>([]);
   const [allPermissions, setAllPermissions] = useState<PermissionDto[]>([]);
@@ -612,20 +620,23 @@ export const RolesManagementView: React.FC = () => {
                       Activa los menús visibles en el panel de navegación para los usuarios con este rol:
                     </p>
 
-                    {Object.entries(groupedMenus).map(([tipo, mList]) => (
-                      <div
-                        key={tipo}
-                        style={{
-                          border: '1px solid #edf0f2',
-                          borderRadius: '6px',
-                          padding: '12px',
-                          marginBottom: '12px',
-                          backgroundColor: '#fafbfc',
-                        }}
-                      >
-                        <div style={{ fontWeight: 700, fontSize: '13px', color: '#1a1c1c', marginBottom: '8px' }}>
-                          Sección: {tipo}
-                        </div>
+                    {Object.entries(groupedMenus).map(([tipo, mList]) => {
+                      const sectionTitle = SECTION_LABEL_MAP[tipo] || tipo;
+                      return (
+                        <div
+                          key={tipo}
+                          style={{
+                            border: '1px solid #edf0f2',
+                            borderRadius: '6px',
+                            padding: '12px',
+                            marginBottom: '12px',
+                            backgroundColor: '#fafbfc',
+                          }}
+                        >
+                          <div style={{ fontWeight: 700, fontSize: '13px', color: '#0052cc', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>folder_open</span>
+                            Sección: {sectionTitle}
+                          </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '8px' }}>
                           {mList.map((m) => (
@@ -660,8 +671,9 @@ export const RolesManagementView: React.FC = () => {
                             </label>
                           ))}
                         </div>
-                      </div>
-                    ))}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>

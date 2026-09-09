@@ -19,13 +19,39 @@ export const LoginView: React.FC = () => {
       const data = response.data.data || response.data;
       const { accessToken, user } = data;
 
-      // Almacenar sesión y decodificar rol y permisos
+      let resolvedRole = user?.role;
+      let resolvedPermissions = user?.permissions || [];
+      let resolvedId = user?.id;
+      let resolvedUsername = user?.username || username;
+
+      // Si no viene en el body, decodificar el payload firmado del JWT
+      if (!resolvedRole && accessToken) {
+        try {
+          const parts = accessToken.split('.');
+          if (parts.length === 3) {
+            const payload = JSON.parse(atob(parts[1]));
+            resolvedRole = payload.role;
+            resolvedPermissions = payload.permissions || resolvedPermissions;
+            resolvedId = payload.sub || resolvedId;
+            resolvedUsername = payload.username || resolvedUsername;
+          }
+        } catch (e) {
+          console.error('Error al decodificar token JWT:', e);
+        }
+      }
+
+      // Almacenar sesión con el rol exacto asignado
       login(accessToken, {
-        id: user?.id,
-        username: user?.username || username,
-        role: user?.role || 'Super Administrador',
-        permissions: user?.permissions || [],
+        id: resolvedId,
+        username: resolvedUsername,
+        role: resolvedRole || 'Analista',
+        permissions: resolvedPermissions,
       });
+
+      // Limpiar la ruta /login de la barra del navegador hacia /
+      if (window.location.pathname === '/login') {
+        window.history.replaceState({}, '', '/');
+      }
     } catch (err: any) {
       console.error('Error al iniciar sesión:', err);
       const msg =
@@ -64,21 +90,24 @@ export const LoginView: React.FC = () => {
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '48px',
-              height: '48px',
-              backgroundColor: '#0052cc',
-              color: '#ffffff',
-              borderRadius: '8px',
+              width: '56px',
+              height: '56px',
+              backgroundColor: '#091e42',
+              borderRadius: '12px',
               marginBottom: '16px',
+              padding: '8px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>
-              query_stats
-            </span>
+            <img
+              src="/logo-white.png"
+              alt="Logo"
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            />
           </div>
-          <h1 style={{ fontSize: '24px', marginBottom: '8px' }}>Growth Suite Intelligence</h1>
+          <h1 style={{ fontSize: '24px', marginBottom: '8px', color: '#1a1c1c' }}>Gestión de Campañas & Leads</h1>
           <p style={{ color: '#5c6270', fontSize: '14px' }}>
-            Plataforma Ejecutiva de Captación & Leads (Meta Ads & TikTok Ads)
+            Plataforma Centralizada de Captación & Leads (Meta Ads & TikTok Ads)
           </p>
         </div>
 
@@ -227,7 +256,7 @@ export const LoginView: React.FC = () => {
             fontFamily: 'JetBrains Mono, monospace',
           }}
         >
-          Productive Precision • Security RBAC & OpenAPI
+          Precisión Operativa • Seguridad RBAC & OpenAPI
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 /* ==========================================================================
-   PRODUCTIVE PRECISION DESIGN SYSTEM
-   High-Contrast Minimalism for Data-Intensive Executive Applications
+   SISTEMA DE DISEÑO - GESTIÓN DE LEADS & INTELIGENCIA COMERCIAL
+   Minimalismo de Alto Contraste para Aplicaciones Ejecutivas
    ========================================================================== */
 
 :root {
@@ -540,6 +540,54 @@ select.input-compact {
   transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Sidebar Accordion Styles */
+.sidebar-accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.15s ease;
+  user-select: none;
+  text-align: left;
+}
+
+.sidebar-accordion-header:hover {
+  background-color: var(--color-surface-subtle);
+}
+
+.sidebar-accordion-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #737685;
+  letter-spacing: 0.06em;
+  font-family: var(--font-body);
+}
+
+.sidebar-accordion-icon {
+  font-size: 18px;
+  color: #737685;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-accordion-icon.is-open {
+  transform: rotate(180deg);
+}
+
+.sidebar-accordion-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 2px;
+  overflow: hidden;
+  transition: max-height 0.25s ease;
+}
+
 .mobile-sidebar-backdrop {
   display: none;
   position: fixed;
@@ -747,4 +795,125 @@ select.input-compact {
   .checkbox-card {
     padding: 10px 12px;
   }
+}
+
+/* ==========================================================================
+   ELEGANT HARMONIOUS TOAST NOTIFICATIONS (PRIMEREACT OVERRIDE)
+   ========================================================================== */
+.app-global-toast.p-toast,
+.p-toast {
+  width: 25rem !important;
+  max-width: calc(100vw - 32px) !important;
+  z-index: 12000 !important;
+  top: 76px !important;
+  right: 24px !important;
+}
+
+.p-toast .p-toast-message {
+  margin-bottom: 12px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 12px 30px -4px rgba(16, 24, 40, 0.12), 0 4px 6px -2px rgba(16, 24, 40, 0.04) !important;
+  backdrop-filter: blur(12px) !important;
+  background: #ffffff !important;
+  border: 1px solid #edf0f2 !important;
+  overflow: hidden !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.p-toast .p-toast-message .p-toast-message-content {
+  padding: 14px 16px !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 12px !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+.p-toast .p-toast-message .p-toast-message-icon {
+  font-size: 20px !important;
+  margin-right: 0 !important;
+  margin-top: 1px !important;
+  flex-shrink: 0 !important;
+}
+
+.p-toast .p-toast-message .p-toast-message-text {
+  margin-left: 0 !important;
+  flex: 1 !important;
+}
+
+.p-toast .p-toast-message .p-toast-summary {
+  font-family: var(--font-headline) !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  margin-bottom: 3px !important;
+}
+
+.p-toast .p-toast-message .p-toast-detail {
+  font-family: var(--font-body) !important;
+  font-size: 12.5px !important;
+  color: #475467 !important;
+  line-height: 1.45 !important;
+  margin-top: 0 !important;
+}
+
+/* Success Toast */
+.p-toast .p-toast-message.p-toast-message-success {
+  border-left: 4px solid #00875a !important;
+}
+.p-toast .p-toast-message.p-toast-message-success .p-toast-message-icon {
+  color: #00875a !important;
+}
+.p-toast .p-toast-message.p-toast-message-success .p-toast-summary {
+  color: #065f46 !important;
+}
+
+/* Error Toast - Soft, harmonic, not aggressive */
+.p-toast .p-toast-message.p-toast-message-error {
+  border-left: 4px solid #d92d20 !important;
+}
+.p-toast .p-toast-message.p-toast-message-error .p-toast-message-icon {
+  color: #d92d20 !important;
+}
+.p-toast .p-toast-message.p-toast-message-error .p-toast-summary {
+  color: #b42318 !important;
+}
+
+/* Warn Toast */
+.p-toast .p-toast-message.p-toast-message-warn {
+  border-left: 4px solid #f79009 !important;
+}
+.p-toast .p-toast-message.p-toast-message-warn .p-toast-message-icon {
+  color: #f79009 !important;
+}
+.p-toast .p-toast-message.p-toast-message-warn .p-toast-summary {
+  color: #b54708 !important;
+}
+
+/* Info Toast */
+.p-toast .p-toast-message.p-toast-message-info {
+  border-left: 4px solid #0052cc !important;
+}
+.p-toast .p-toast-message.p-toast-message-info .p-toast-message-icon {
+  color: #0052cc !important;
+}
+.p-toast .p-toast-message.p-toast-message-info .p-toast-summary {
+  color: #0052cc !important;
+}
+
+/* Close Button */
+.p-toast .p-toast-message .p-toast-icon-close {
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 4px !important;
+  color: #98a2b3 !important;
+  margin-left: 8px !important;
+  transition: all 0.15s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.p-toast .p-toast-message .p-toast-icon-close:hover {
+  background: #f2f4f7 !important;
+  color: #344054 !important;
 }

@@ -11,16 +11,16 @@ import { UsersManagementView } from './views/UsersManagementView';
 import { RolesManagementView } from './views/RolesManagementView';
 import { PermissionsManagementView } from './views/PermissionsManagementView';
 import { MenusManagementView } from './views/MenusManagementView';
+import { VariablesConfigView } from './views/VariablesConfigView';
+import { TutorialVariablesView } from './views/TutorialVariablesView';
 
 export const App: React.FC = () => {
-  const { isAuthenticated, isSuperAdmin, user } = useAuth();
+  const { isAuthenticated, isSuperAdmin, isAdmin, hasPermission } = useAuth();
   const [activeTab, setActiveTab] = useState<NavigationTab>('dashboard');
 
   if (!isAuthenticated) {
     return <LoginView />;
   }
-
-  const isAdmin = isSuperAdmin || user?.role?.toLowerCase().includes('admin');
 
   return (
     <AppLayout activeTab={activeTab} setActiveTab={setActiveTab}>
@@ -28,10 +28,14 @@ export const App: React.FC = () => {
       {activeTab === 'tactical' && <DashboardView initialSubTab="tactical" />}
       {activeTab === 'creatives' && <DashboardView initialSubTab="creatives" />}
       {activeTab === 'matrix' && <DashboardView initialSubTab="matrix" />}
-      {activeTab === 'leads' && <LeadsView />}
-      {activeTab === 'campaigns' && <CampaignsView />}
-      {activeTab === 'scheduler' && <SyncScheduleView />}
-      {activeTab === 'swagger' && <SwaggerRbacView />}
+      {activeTab === 'leads' && <LeadsView onNavigateToVariables={() => setActiveTab('variables')} />}
+      {activeTab === 'campaigns' && <CampaignsView onNavigateToVariables={() => setActiveTab('variables')} />}
+      {activeTab === 'scheduler' && (isAdmin ? <SyncScheduleView onNavigateToVariables={() => setActiveTab('variables')} /> : <DashboardView initialSubTab="executive" />)}
+      {activeTab === 'swagger' && (hasPermission('swagger.read') || isAdmin ? <SwaggerRbacView /> : <DashboardView initialSubTab="executive" />)}
+      {activeTab === 'tutorial' && <TutorialVariablesView onNavigateToVariables={() => setActiveTab('variables')} />}
+
+      {/* Vista restringida exclusivamente para Super Administrador */}
+      {activeTab === 'variables' && (isSuperAdmin ? <VariablesConfigView onNavigateToTutorial={() => setActiveTab('tutorial')} /> : <DashboardView initialSubTab="executive" />)}
 
       {/* Vistas restringidas exclusivamente para Administradores */}
       {activeTab === 'users' && (isAdmin ? <UsersManagementView /> : <DashboardView initialSubTab="executive" />)}

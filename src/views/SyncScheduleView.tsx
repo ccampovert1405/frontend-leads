@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
+import { useAppToast } from '../context/ToastContext';
+import { SystemConfigBanner } from '../components/SystemConfigBanner';
 
-export const SyncScheduleView: React.FC = () => {
+interface SyncScheduleViewProps {
+  onNavigateToVariables?: () => void;
+}
+
+export const SyncScheduleView: React.FC<SyncScheduleViewProps> = ({ onNavigateToVariables }) => {
+  const toast = useAppToast();
   const [schedule, setSchedule] = useState<any>(null);
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [triggering, setTriggering] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Form states
   const [daysOfWeek, setDaysOfWeek] = useState<number[]>([1, 2, 3, 4, 5]);
@@ -50,6 +56,7 @@ export const SyncScheduleView: React.FC = () => {
       setLogs(lData.items || []);
     } catch (err: any) {
       console.error('Error al consultar configuración de sincronización:', err);
+      toast.showError('Error al Cargar Configuración', err.response?.data?.message || 'No se pudo cargar la programación del Crontab.');
     } finally {
       setLoading(false);
     }
@@ -70,7 +77,6 @@ export const SyncScheduleView: React.FC = () => {
 
   const handleSave = async () => {
     setSaving(true);
-    setMessage(null);
     try {
       const payload = {
         daysOfWeek,
@@ -86,15 +92,15 @@ export const SyncScheduleView: React.FC = () => {
       const res = await api.put('/sync-schedules', payload);
       const data = res.data.data || res.data;
       setSchedule(data);
-      setMessage({
-        type: 'success',
-        text: `Configuración guardada en BD. Cron reprogramado a: "${data.cronExpression}".`,
-      });
+      toast.showSuccess(
+        'Programación Guardada',
+        `Configuración guardada en BD. Cron reprogramado a: "${data.cronExpression}".`
+      );
     } catch (err: any) {
-      setMessage({
-        type: 'error',
-        text: err.response?.data?.message || 'Error al guardar la programación',
-      });
+      toast.showError(
+        'Error al Guardar Programación',
+        err.response?.data?.message || 'No se pudo guardar la configuración de sincronización.'
+      );
     } finally {
       setSaving(false);
     }
@@ -102,20 +108,21 @@ export const SyncScheduleView: React.FC = () => {
 
   const handleTriggerNow = async () => {
     setTriggering(true);
-    setMessage(null);
     try {
       const res = await api.post('/sync-schedules/trigger');
       const data = res.data.data || res.data;
-      setMessage({
-        type: 'success',
-        text: `Sincronización ejecutada con éxito: ${data.metaCampaigns} camp. Meta, ${data.metaLeads} leads Meta, ${data.tiktokCampaigns} camp. TikTok`,
-      });
+      toast.showSuccess(
+        'Sincronización Completada',
+        `Ejecutado con éxito: ${data.metaCampaigns ?? 0} camp. Meta, ${data.metaLeads ?? 0} leads Meta, ${data.tiktokCampaigns ?? 0} camp. TikTok`
+      );
       fetchScheduleAndLogs();
     } catch (err: any) {
-      setMessage({
-        type: 'error',
-        text: err.response?.data?.message || 'Error al ejecutar sincronización',
-      });
+      const errMsg = err.response?.data?.message || 'Error al ejecutar sincronización';
+      if (err.response?.status === 412) {
+        toast.showWarn('Variables No Configuradas', errMsg);
+      } else {
+        toast.showError('Error al Sincronizar', errMsg);
+      }
     } finally {
       setTriggering(false);
     }
@@ -123,6 +130,9 @@ export const SyncScheduleView: React.FC = () => {
 
   return (
     <div>
+      {/* Banner de Estado de Configuración del Sistema */}
+      <SystemConfigBanner onNavigateToVariables={onNavigateToVariables} />
+
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
@@ -139,28 +149,6 @@ export const SyncScheduleView: React.FC = () => {
           {triggering ? 'Ejecutando...' : 'Sincronizar Ahora (Bajo Demanda)'}
         </button>
       </div>
-
-      {/* Message alert */}
-      {message && (
-        <div
-          style={{
-            backgroundColor: message.type === 'error' ? '#ffdad6' : '#e3fcef',
-            color: message.type === 'error' ? '#ba1a1a' : '#00875a',
-            padding: '12px 16px',
-            borderRadius: '4px',
-            marginBottom: '20px',
-            fontSize: '13.5px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-            {message.type === 'error' ? 'error' : 'check_circle'}
-          </span>
-          <span>{message.text}</span>
-        </div>
-      )}
 
       {/* Configuration Cards Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '24px', marginBottom: '32px' }}>

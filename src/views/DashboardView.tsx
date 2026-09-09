@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
+import { SystemConfigBanner } from '../components/SystemConfigBanner';
 
 interface DashboardViewProps {
   initialSubTab?: 'executive' | 'tactical' | 'creatives' | 'matrix';
@@ -38,7 +39,7 @@ interface ScheduleInfo {
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({ initialSubTab = 'executive' }) => {
-  const [subTab, setSubTab] = useState<'executive' | 'tactical' | 'creatives' | 'matrix'>(initialSubTab);
+  const subTab = initialSubTab;
   const [loading, setLoading] = useState(true);
   const [metaCampaigns, setMetaCampaigns] = useState<CampaignItem[]>([]);
   const [tiktokCampaigns, setTiktokCampaigns] = useState<CampaignItem[]>([]);
@@ -171,9 +172,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ initialSubTab = 'e
       {/* Page Title & Subtitle */}
       <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <h1 style={{ fontSize: '26px', marginBottom: '6px' }}>Power BI Growth Intelligence Report</h1>
-          <p style={{ color: '#5c6270', fontSize: '14px' }}>
-            Métricas reales de adquisición y captación consolidadas en base de datos (Meta Ads & TikTok Ads)
+          <h1 style={{ fontSize: '24px', marginBottom: '6px' }}>
+            {subTab === 'executive' && 'Panel Ejecutivo de Rendimiento'}
+            {subTab === 'tactical' && 'Análisis Táctico (Meta vs. TikTok)'}
+            {subTab === 'creatives' && 'Creativos & Audiencias Publicitarias'}
+            {subTab === 'matrix' && 'Matriz de Decisiones & Diagnóstico Operativo'}
+          </h1>
+          <p style={{ color: '#5c6270', fontSize: '13.5px' }}>
+            {subTab === 'executive' && 'Métricas consolidadas de adquisición, inversión y captación de leads en Meta Ads y TikTok Ads'}
+            {subTab === 'tactical' && 'Comparativa directa de eficiencia, costo por lead (CPL), CTR y volumen entre plataformas'}
+            {subTab === 'creatives' && 'Evaluación y desglose de campañas, creativos y audiencias segmentadas'}
+            {subTab === 'matrix' && 'Matriz de diagnóstico operativo y evaluación de rendimiento automatizada'}
           </p>
         </div>
 
@@ -202,6 +211,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ initialSubTab = 'e
         </div>
       </div>
 
+      <SystemConfigBanner />
+
       {/* Info notice if no data exists yet */}
       {!loading && totalCampaigns === 0 && totalLeads === 0 && (
         <div
@@ -223,109 +234,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ initialSubTab = 'e
           </span>
           <div>
             <strong>Base de datos lista:</strong> No hay campañas ni leads descargados aún en el sistema.
-            Ve a la sección <strong>Campañas Publicitarias</strong> o al <strong>Gestor Crontab</strong> para sincronizar los datos de Meta y TikTok.
+            Ve a la sección <strong>Campañas Publicitarias</strong> para sincronizar los datos de Meta y TikTok.
           </div>
         </div>
       )}
-
-      {/* Internal Subtabs Navigation */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '8px',
-          borderBottom: '1px solid #edf0f2',
-          marginBottom: '28px',
-          paddingBottom: '2px',
-        }}
-      >
-        <button
-          onClick={() => setSubTab('executive')}
-          style={{
-            background: 'none',
-            border: 'none',
-            borderBottom: subTab === 'executive' ? '2px solid #0052cc' : '2px solid transparent',
-            color: subTab === 'executive' ? '#0052cc' : '#5c6270',
-            fontWeight: subTab === 'executive' ? 700 : 500,
-            fontSize: '14px',
-            padding: '8px 16px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-            insights
-          </span>
-          Vista Ejecutiva (C-Suite)
-        </button>
-
-        <button
-          onClick={() => setSubTab('tactical')}
-          style={{
-            background: 'none',
-            border: 'none',
-            borderBottom: subTab === 'tactical' ? '2px solid #0052cc' : '2px solid transparent',
-            color: subTab === 'tactical' ? '#0052cc' : '#5c6270',
-            fontWeight: subTab === 'tactical' ? 700 : 500,
-            fontSize: '14px',
-            padding: '8px 16px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-            compare_arrows
-          </span>
-          Vista Táctica (Meta vs. TikTok)
-        </button>
-
-        <button
-          onClick={() => setSubTab('creatives')}
-          style={{
-            background: 'none',
-            border: 'none',
-            borderBottom: subTab === 'creatives' ? '2px solid #0052cc' : '2px solid transparent',
-            color: subTab === 'creatives' ? '#0052cc' : '#5c6270',
-            fontWeight: subTab === 'creatives' ? 700 : 500,
-            fontSize: '14px',
-            padding: '8px 16px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-            campaign
-          </span>
-          Campañas ({allCampaigns.length})
-        </button>
-
-        <button
-          onClick={() => setSubTab('matrix')}
-          style={{
-            background: 'none',
-            border: 'none',
-            borderBottom: subTab === 'matrix' ? '2px solid #0052cc' : '2px solid transparent',
-            color: subTab === 'matrix' ? '#0052cc' : '#5c6270',
-            fontWeight: subTab === 'matrix' ? 700 : 500,
-            fontSize: '14px',
-            padding: '8px 16px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-            rule
-          </span>
-          Matriz de Decisiones & Diagnóstico
-        </button>
-      </div>
 
       {loading ? (
         <div style={{ padding: '60px', textAlign: 'center', color: '#737685' }}>

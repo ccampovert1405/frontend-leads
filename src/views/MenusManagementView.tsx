@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { menusApi, MenuDto } from '../services/api';
 
+export const SECTION_LABEL_MAP: Record<string, string> = {
+  Principal: 'Reportes & Analítica de Rendimiento',
+  Operaciones: 'Gestión & Operaciones de Leads',
+  Variables: 'Variables del Sistema',
+  Administracion: 'Seguridad & Control de Acceso',
+  Plataforma: 'Plataforma & Integraciones',
+};
+
 const COMMON_ICONS = [
   'monitoring',
   'compare_arrows',
@@ -230,7 +238,9 @@ export const MenusManagementView: React.FC = () => {
                   <span className="material-symbols-outlined" style={{ color: '#0052cc', fontSize: '20px' }}>
                     folder
                   </span>
-                  <h3 style={{ margin: 0, fontSize: '15px' }}>Sección: {section}</h3>
+                  <h3 style={{ margin: 0, fontSize: '15px' }}>
+                    Sección: {SECTION_LABEL_MAP[section] || section} {section !== (SECTION_LABEL_MAP[section] || section) ? `(${section})` : ''}
+                  </h3>
                   <span style={{ fontSize: '12px', color: '#737685', marginLeft: 'auto' }}>
                     {sectionMenus.length} ítem(s)
                   </span>
@@ -391,10 +401,11 @@ export const MenusManagementView: React.FC = () => {
                     onChange={(e) => setFormTipo(e.target.value)}
                     className="input-field"
                   >
-                    <option value="Principal">Principal</option>
-                    <option value="Operaciones">Operaciones</option>
-                    <option value="Administracion">Administración</option>
-                    <option value="Plataforma">Plataforma</option>
+                    <option value="Principal">Reportes & Analítica (Principal)</option>
+                    <option value="Operaciones">Gestión & Operaciones de Leads (Operaciones)</option>
+                    <option value="Variables">Variables del Sistema (Variables)</option>
+                    <option value="Administracion">Seguridad & Control de Acceso (Administracion)</option>
+                    <option value="Plataforma">Plataforma & Integraciones (Plataforma)</option>
                   </select>
                 </div>
 

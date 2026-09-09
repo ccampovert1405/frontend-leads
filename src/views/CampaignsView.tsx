@@ -1,12 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
+import { useAppToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
+import { SystemConfigBanner } from '../components/SystemConfigBanner';
 
-export const CampaignsView: React.FC = () => {
+interface CampaignsViewProps {
+  onNavigateToVariables?: () => void;
+}
+
+export const CampaignsView: React.FC<CampaignsViewProps> = ({ onNavigateToVariables }) => {
+  const { isSuperAdmin } = useAuth();
+  const toast = useAppToast();
   const [platform, setPlatform] = useState<'meta' | 'tiktok'>('meta');
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [canExtractLeads, setCanExtractLeads] = useState<boolean>(true);
+
+  // Verificar estado del sistema
+  const checkSystemStatus = async () => {
+    try {
+      const res = await api.get('/platform-credentials/system-status');
+      const data = res.data.data || res.data;
+      if (data && typeof data.canExtractLeads === 'boolean') {
+        setCanExtractLeads(data.canExtractLeads);
+      }
+    } catch {
+      // Ignorar fallback
+    }
+  };
 
   const fetchCampaigns = async () => {
     setLoading(true);
@@ -17,27 +39,41 @@ export const CampaignsView: React.FC = () => {
       setCampaigns(Array.isArray(data) ? data : data.items || []);
     } catch (err: any) {
       console.error('Error al cargar campañas:', err);
+      toast.showError('Error al Cargar Campañas', err.response?.data?.message || 'No se pudieron consultar las campañas.');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    checkSystemStatus();
     fetchCampaigns();
   }, [platform]);
 
   const handleSync = async () => {
+    if (!canExtractLeads && !isSuperAdmin) {
+      toast.showWarn(
+        'Sincronización Bloqueada',
+        'Las variables de entorno de Meta Ads y TikTok Ads no están configuradas. Debe comunicarse con el Administrador para configurar las variables y poder extraer los leads.'
+      );
+      return;
+    }
+
     setSyncing(true);
-    setMessage(null);
     try {
       const endpoint =
         platform === 'meta' ? '/meta-ads/campaigns/sync' : '/tiktok-ads/campaigns/sync';
       const res = await api.post(endpoint, {});
       const data = res.data.data || res.data;
-      setMessage(`Sincronización exitosa: ${data.synced} campañas actualizadas.`);
+      toast.showSuccess('Sincronización Exitosa', `${data.synced ?? 0} campañas sincronizadas correctamente desde ${platform === 'meta' ? 'Meta Ads' : 'TikTok Ads'}.`);
       fetchCampaigns();
     } catch (err: any) {
-      setMessage(`Error en sincronización: ${err.response?.data?.message || err.message}`);
+      const errMsg = err.response?.data?.message || err.message;
+      if (err.response?.status === 412) {
+        toast.showWarn('Variables No Configuradas', errMsg);
+      } else {
+        toast.showError('Error en Sincronización', errMsg);
+      }
     } finally {
       setSyncing(false);
     }
@@ -45,6 +81,9 @@ export const CampaignsView: React.FC = () => {
 
   return (
     <div>
+      {/* Banner de Estado de Configuración del Sistema */}
+      <SystemConfigBanner onNavigateToVariables={onNavigateToVariables} />
+
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
@@ -54,35 +93,27 @@ export const CampaignsView: React.FC = () => {
           </p>
         </div>
 
-        <button onClick={handleSync} disabled={syncing} className="btn-primary" style={{ fontSize: '13px' }}>
+        <button
+          onClick={handleSync}
+          disabled={syncing || (!canExtractLeads && !isSuperAdmin)}
+          className="btn-primary"
+          style={{
+            fontSize: '13px',
+            opacity: !canExtractLeads && !isSuperAdmin ? 0.6 : 1,
+            cursor: !canExtractLeads && !isSuperAdmin ? 'not-allowed' : 'pointer',
+          }}
+          title={
+            !canExtractLeads && !isSuperAdmin
+              ? 'Debe comunicarse con el Administrador para configurar las variables y poder sincronizar campañas.'
+              : `Sincronizar campañas de ${platform === 'meta' ? 'Meta' : 'TikTok'}`
+          }
+        >
           <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
             {syncing ? 'sync' : 'cloud_sync'}
           </span>
           {syncing ? 'Sincronizando...' : `Sincronizar ${platform === 'meta' ? 'Meta' : 'TikTok'}`}
         </button>
       </div>
-
-      {/* Message notification */}
-      {message && (
-        <div
-          style={{
-            backgroundColor: message.includes('Error') ? '#ffdad6' : '#e3fcef',
-            color: message.includes('Error') ? '#ba1a1a' : '#00875a',
-            padding: '12px 16px',
-            borderRadius: '4px',
-            marginBottom: '16px',
-            fontSize: '13.5px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-            {message.includes('Error') ? 'error' : 'check_circle'}
-          </span>
-          <span>{message}</span>
-        </div>
-      )}
 
       {/* Platform Switcher Tabs */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
