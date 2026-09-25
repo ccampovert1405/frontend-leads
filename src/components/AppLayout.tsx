@@ -55,7 +55,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
   const menuSections = [
     {
       id: 'reports',
-      title: 'Reportes & AnalÃ­tica de Rendimiento',
+      title: 'Reportes & Analítica de Rendimiento',
       adminOnly: false,
       superAdminOnly: false,
       items: [
@@ -67,7 +67,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
         },
         {
           id: 'tactical' as NavigationTab,
-          label: 'Vista TÃ¡ctica Meta vs TikTok',
+          label: 'Vista Táctica Meta vs TikTok',
           icon: 'compare_arrows',
           permission: null,
         },
@@ -87,7 +87,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
     },
     {
       id: 'leads',
-      title: 'GestiÃ³n & Operaciones de Leads',
+      title: 'Gestión & Operaciones de Leads',
       adminOnly: false,
       superAdminOnly: false,
       items: [
@@ -105,13 +105,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
         },
         {
           id: 'campaigns' as NavigationTab,
-          label: 'CampaÃ±as Publicitarias',
+          label: 'Campañas Publicitarias',
           icon: 'ads_click',
           permission: 'meta.campaigns.list',
         },
         {
           id: 'scheduler' as NavigationTab,
-          label: 'ProgramaciÃ³n Crontab',
+          label: 'Programación Crontab',
           icon: 'schedule',
           permission: 'sync.schedules.read',
         },
@@ -139,7 +139,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
       items: [
         {
           id: 'users' as NavigationTab,
-          label: 'GestiÃ³n de Usuarios',
+          label: 'Gestión de Usuarios',
           icon: 'manage_accounts',
           permission: 'users.read',
         },
@@ -151,13 +151,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
         },
         {
           id: 'permissions' as NavigationTab,
-          label: 'CatÃ¡logo de Permisos',
+          label: 'Catálogo de Permisos',
           icon: 'key',
           permission: 'permissions.read',
         },
         {
           id: 'menus' as NavigationTab,
-          label: 'GestiÃ³n de MenÃºs',
+          label: 'Gestión de Menús',
           icon: 'menu_open',
           permission: 'menus.read',
         },
@@ -185,7 +185,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
     },
   ];
 
-  // Estado del AcordeÃ³n para colapsar/expandir secciones
+  // Estado del Acordeón para colapsar/expandir secciones
   const [openSections, setOpenSections] = React.useState<Record<string, boolean>>({
     reports: true,
     leads: true,
@@ -194,7 +194,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
     platform: true,
   });
 
-  // Asegurar que la secciÃ³n que contiene el tab activo permanezca expandida
+  // Asegurar que la sección que contiene el tab activo permanezca expandida
   React.useEffect(() => {
     const parentSection = menuSections.find((s) => s.items.some((it) => it.id === activeTab));
     if (parentSection) {
@@ -345,9 +345,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
                 >
                   <span className="sidebar-accordion-title">{section.title}</span>
                   <span
-                    className={`material-symbols-outlined sidebar-accordion-icon ${
-                      isOpen ? 'is-open' : ''
-                    }`}
+                    className={`material-symbols-outlined sidebar-accordion-icon ${isOpen ? 'is-open' : ''
+                      }`}
                   >
                     expand_more
                   </span>
@@ -498,18 +497,18 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
               <span style={{ color: '#c3c6d6' }}>/</span>
               <span style={{ fontSize: '13.5px', fontWeight: 600, color: '#1a1c1c', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {activeTab === 'dashboard' && 'Vista Ejecutiva C-Suite'}
-                {activeTab === 'tactical' && 'Vista TÃ¡ctica (Meta vs. TikTok)'}
+                {activeTab === 'tactical' && 'Vista Táctica (Meta vs. TikTok)'}
                 {activeTab === 'creatives' && 'Creativos & Audiencias'}
                 {activeTab === 'matrix' && 'Matriz de Decisiones'}
                 {activeTab === 'leads' && 'Leads Unificados'}
-                {activeTab === 'campaigns' && 'CampaÃ±as Publicitarias'}
-                {activeTab === 'scheduler' && 'ConfiguraciÃ³n Crontab'}
+                {activeTab === 'campaigns' && 'Campañas Publicitarias'}
+                {activeTab === 'scheduler' && 'Configuración Crontab'}
                 {activeTab === 'variables' && 'Variables del Sistema & Plataformas'}
                 {activeTab === 'swagger' && 'APIs Asignadas (RBAC)'}
-                {activeTab === 'users' && 'GestiÃ³n de Usuarios'}
+                {activeTab === 'users' && 'Gestión de Usuarios'}
                 {activeTab === 'roles' && 'Roles & Permisos'}
-                {activeTab === 'permissions' && 'CatÃ¡logo de Permisos'}
-                {activeTab === 'menus' && 'GestiÃ³n de MenÃºs'}
+                {activeTab === 'permissions' && 'Catálogo de Permisos'}
+                {activeTab === 'menus' && 'Gestión de Menús'}
               </span>
             </div>
           </div>
