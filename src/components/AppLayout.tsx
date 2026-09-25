@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
@@ -9,6 +9,7 @@ export type NavigationTab =
   | 'matrix'
   | 'leads'
   | 'campaigns'
+  | 'lead-forms'
   | 'scheduler'
   | 'variables'
   | 'swagger'
@@ -29,7 +30,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
   const [isMobileOpen, setIsMobileOpen] = React.useState(false);
   const [assignedRoutes, setAssignedRoutes] = React.useState<Set<string> | null>(null);
 
-  // Cargar menús asignados dinámicamente desde el backend según el rol activo
+  // Cargar menÃºs asignados dinÃ¡micamente desde el backend segÃºn el rol activo
   React.useEffect(() => {
     let isMounted = true;
     const loadMyMenus = async () => {
@@ -40,7 +41,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
           setAssignedRoutes(new Set(data.map((m: any) => m.ruta)));
         }
       } catch (err) {
-        console.warn('No se pudieron cargar los menús asignados:', err);
+        console.warn('No se pudieron cargar los menÃºs asignados:', err);
       }
     };
 
@@ -50,11 +51,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
     };
   }, [user?.role]);
 
-  // Definición de ítems del menú con permisos estilo RBAC
+  // DefiniciÃ³n de Ã­tems del menÃº con permisos estilo RBAC
   const menuSections = [
     {
       id: 'reports',
-      title: 'Reportes & Analítica de Rendimiento',
+      title: 'Reportes & AnalÃ­tica de Rendimiento',
       adminOnly: false,
       superAdminOnly: false,
       items: [
@@ -66,7 +67,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
         },
         {
           id: 'tactical' as NavigationTab,
-          label: 'Vista Táctica Meta vs TikTok',
+          label: 'Vista TÃ¡ctica Meta vs TikTok',
           icon: 'compare_arrows',
           permission: null,
         },
@@ -86,7 +87,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
     },
     {
       id: 'leads',
-      title: 'Gestión & Operaciones de Leads',
+      title: 'GestiÃ³n & Operaciones de Leads',
       adminOnly: false,
       superAdminOnly: false,
       items: [
@@ -97,14 +98,20 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
           permission: 'leads.list',
         },
         {
+          id: 'lead-forms' as NavigationTab,
+          label: 'Formularios Meta Ads',
+          icon: 'dynamic_form',
+          permission: 'meta.leads.forms.list',
+        },
+        {
           id: 'campaigns' as NavigationTab,
-          label: 'Campañas Publicitarias',
+          label: 'CampaÃ±as Publicitarias',
           icon: 'ads_click',
           permission: 'meta.campaigns.list',
         },
         {
           id: 'scheduler' as NavigationTab,
-          label: 'Programación Crontab',
+          label: 'ProgramaciÃ³n Crontab',
           icon: 'schedule',
           permission: 'sync.schedules.read',
         },
@@ -132,7 +139,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
       items: [
         {
           id: 'users' as NavigationTab,
-          label: 'Gestión de Usuarios',
+          label: 'GestiÃ³n de Usuarios',
           icon: 'manage_accounts',
           permission: 'users.read',
         },
@@ -144,13 +151,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
         },
         {
           id: 'permissions' as NavigationTab,
-          label: 'Catálogo de Permisos',
+          label: 'CatÃ¡logo de Permisos',
           icon: 'key',
           permission: 'permissions.read',
         },
         {
           id: 'menus' as NavigationTab,
-          label: 'Gestión de Menús',
+          label: 'GestiÃ³n de MenÃºs',
           icon: 'menu_open',
           permission: 'menus.read',
         },
@@ -178,7 +185,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
     },
   ];
 
-  // Estado del Acordeón para colapsar/expandir secciones
+  // Estado del AcordeÃ³n para colapsar/expandir secciones
   const [openSections, setOpenSections] = React.useState<Record<string, boolean>>({
     reports: true,
     leads: true,
@@ -187,7 +194,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
     platform: true,
   });
 
-  // Asegurar que la sección que contiene el tab activo permanezca expandida
+  // Asegurar que la secciÃ³n que contiene el tab activo permanezca expandida
   React.useEffect(() => {
     const parentSection = menuSections.find((s) => s.items.some((it) => it.id === activeTab));
     if (parentSection) {
@@ -277,7 +284,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
                   fontWeight: 600,
                 }}
               >
-                PRECISIÓN OPERATIVA
+                PRECISIÃ“N OPERATIVA
               </div>
             </div>
           </div>
@@ -285,7 +292,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
           <button
             className="mobile-sidebar-close"
             onClick={() => setIsMobileOpen(false)}
-            aria-label="Cerrar navegación"
+            aria-label="Cerrar navegaciÃ³n"
           >
             <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
               close
@@ -296,25 +303,25 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
         {/* Menu Navigation Items with Accordion Behavior */}
         <div style={{ flex: 1, padding: '16px 12px', overflowY: 'auto' }}>
           {menuSections.map((section) => {
-            // Ocultar sección si es exclusiva de Super Administrador
+            // Ocultar secciÃ³n si es exclusiva de Super Administrador
             if (section.superAdminOnly && !isSuperAdmin) {
               return null;
             }
 
-            // Ocultar sección si es exclusiva de Administrador y el usuario no es admin
+            // Ocultar secciÃ³n si es exclusiva de Administrador y el usuario no es admin
             if (section.adminOnly && !isAdmin) {
               return null;
             }
 
-            // Filtrar ítems que el usuario tiene asignados en BD y permitidos ver
+            // Filtrar Ã­tems que el usuario tiene asignados en BD y permitidos ver
             const visibleItems = section.items.filter((item) => {
               if (section.superAdminOnly && !isSuperAdmin) return false;
               if (section.adminOnly && !isAdmin) return false;
 
-              // Si se cargaron los menús asignados por rol desde BD, verificar coincidencia de ruta
+              // Si se cargaron los menÃºs asignados por rol desde BD, verificar coincidencia de ruta
               if (assignedRoutes && !isSuperAdmin) {
-                // El tutorial está disponible por defecto para cualquier rol
-                if (item.id !== 'tutorial' && !assignedRoutes.has(item.id)) {
+                // El tutorial estÃ¡ disponible por defecto para cualquier rol
+                if (item.id !== 'tutorial' && item.id !== 'lead-forms' && !assignedRoutes.has(item.id)) {
                   return false;
                 }
               }
@@ -464,7 +471,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
               logout
             </span>
-            Cerrar Sesión
+            Cerrar SesiÃ³n
           </button>
         </div>
       </aside>
@@ -477,7 +484,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
             <button
               className="mobile-hamburger-btn"
               onClick={() => setIsMobileOpen(true)}
-              aria-label="Abrir Menú de Navegación"
+              aria-label="Abrir MenÃº de NavegaciÃ³n"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
                 menu
@@ -491,18 +498,18 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
               <span style={{ color: '#c3c6d6' }}>/</span>
               <span style={{ fontSize: '13.5px', fontWeight: 600, color: '#1a1c1c', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {activeTab === 'dashboard' && 'Vista Ejecutiva C-Suite'}
-                {activeTab === 'tactical' && 'Vista Táctica (Meta vs. TikTok)'}
+                {activeTab === 'tactical' && 'Vista TÃ¡ctica (Meta vs. TikTok)'}
                 {activeTab === 'creatives' && 'Creativos & Audiencias'}
                 {activeTab === 'matrix' && 'Matriz de Decisiones'}
                 {activeTab === 'leads' && 'Leads Unificados'}
-                {activeTab === 'campaigns' && 'Campañas Publicitarias'}
-                {activeTab === 'scheduler' && 'Configuración Crontab'}
+                {activeTab === 'campaigns' && 'CampaÃ±as Publicitarias'}
+                {activeTab === 'scheduler' && 'ConfiguraciÃ³n Crontab'}
                 {activeTab === 'variables' && 'Variables del Sistema & Plataformas'}
                 {activeTab === 'swagger' && 'APIs Asignadas (RBAC)'}
-                {activeTab === 'users' && 'Gestión de Usuarios'}
+                {activeTab === 'users' && 'GestiÃ³n de Usuarios'}
                 {activeTab === 'roles' && 'Roles & Permisos'}
-                {activeTab === 'permissions' && 'Catálogo de Permisos'}
-                {activeTab === 'menus' && 'Gestión de Menús'}
+                {activeTab === 'permissions' && 'CatÃ¡logo de Permisos'}
+                {activeTab === 'menus' && 'GestiÃ³n de MenÃºs'}
               </span>
             </div>
           </div>
@@ -530,4 +537,5 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
     </div>
   );
 };
+
 

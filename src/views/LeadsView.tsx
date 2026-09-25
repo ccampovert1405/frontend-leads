@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import api, { API_BASE_URL } from '../services/api';
 import { useAppToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { SystemConfigBanner } from '../components/SystemConfigBanner';
+import { LeadFormsView } from './LeadFormsView';
 
 interface LeadItem {
   id: string;
   source: 'meta' | 'tiktok' | 'META' | 'TIKTOK';
   sourceLeadId: string;
+  sourceCampaignId?: string | null;
   campaignId: string | null;
+  rawPayload?: any;
   formName: string | null;
   fullName: string | null;
   email: string | null;
@@ -31,8 +34,13 @@ export const LeadsView: React.FC<LeadsViewProps> = ({ onNavigateToVariables }) =
   const [total, setTotal] = useState(0);
   const [canExtractLeads, setCanExtractLeads] = useState<boolean>(true);
   const [syncing, setSyncing] = useState(false);
+  const [activeSubTab, setActiveSubTab] = useState<'leads' | 'forms'>('leads');
 
-  // Consultar estado de configuración del sistema
+  const getLeadCampaignId = (l: LeadItem): string | null => {
+    return l.sourceCampaignId || l.campaignId || l.rawPayload?.campaign_id || null;
+  };
+
+  // Consultar estado de configuraciÃ³n del sistema
   const checkSystemStatus = async () => {
     try {
       const res = await api.get('/platform-credentials/system-status');
@@ -76,8 +84,8 @@ export const LeadsView: React.FC<LeadsViewProps> = ({ onNavigateToVariables }) =
   const handleExportCsv = () => {
     if (!canExtractLeads && !isSuperAdmin) {
       toast.showWarn(
-        'Extracción de Leads Bloqueada',
-        'Las variables de entorno de Meta Ads y TikTok Ads no están configuradas en el sistema. Debe comunicarse con el Administrador para configurar las variables y poder extraer los leads.'
+        'ExtracciÃ³n de Leads Bloqueada',
+        'Las variables de entorno de Meta Ads y TikTok Ads no estÃ¡n configuradas en el sistema. Debe comunicarse con el Administrador para configurar las variables y poder extraer los leads.'
       );
       return;
     }
@@ -90,8 +98,8 @@ export const LeadsView: React.FC<LeadsViewProps> = ({ onNavigateToVariables }) =
   const handleSyncMetaLeads = async () => {
     if (!canExtractLeads && !isSuperAdmin) {
       toast.showWarn(
-        'Extracción de Leads Bloqueada',
-        'Las variables de entorno de Meta Ads y TikTok Ads no están configuradas en el sistema. Debe comunicarse con el Administrador para configurar las variables y poder extraer los leads.'
+        'ExtracciÃ³n de Leads Bloqueada',
+        'Las variables de entorno de Meta Ads y TikTok Ads no estÃ¡n configuradas en el sistema. Debe comunicarse con el Administrador para configurar las variables y poder extraer los leads.'
       );
       return;
     }
@@ -103,8 +111,8 @@ export const LeadsView: React.FC<LeadsViewProps> = ({ onNavigateToVariables }) =
       const fetched = data?.leadsFetched ?? 0;
       const saved = data?.leadsSaved ?? 0;
       toast.showSuccess(
-        'Sincronización de Meta Exitosa',
-        `Se extrajeron prospectos desde formularios y campañas de Meta Ads. Obtenidos: ${fetched} (${saved} guardados en base de datos).`
+        'SincronizaciÃ³n de Meta Exitosa',
+        `Se extrajeron prospectos desde formularios y campaÃ±as de Meta Ads. Obtenidos: ${fetched} (${saved} guardados en base de datos).`
       );
       await fetchLeads();
     } catch (err: any) {
@@ -113,7 +121,7 @@ export const LeadsView: React.FC<LeadsViewProps> = ({ onNavigateToVariables }) =
       const errMsg = Array.isArray(rawMsg)
         ? rawMsg.join(', ')
         : rawMsg || err.response?.data?.detail || 'No se pudieron sincronizar los prospectos desde Meta Ads.';
-      toast.showError('Error en Sincronización', errMsg);
+      toast.showError('Error en SincronizaciÃ³n', errMsg);
     } finally {
       setSyncing(false);
     }
@@ -126,7 +134,7 @@ export const LeadsView: React.FC<LeadsViewProps> = ({ onNavigateToVariables }) =
       (l.fullName && l.fullName.toLowerCase().includes(term)) ||
       (l.email && l.email.toLowerCase().includes(term)) ||
       (l.phone && l.phone.includes(term)) ||
-      (l.campaignId && l.campaignId.toLowerCase().includes(term))
+      ((getLeadCampaignId(l)) && getLeadCampaignId(l)!.toLowerCase().includes(term))
     );
   });
 
@@ -155,7 +163,7 @@ export const LeadsView: React.FC<LeadsViewProps> = ({ onNavigateToVariables }) =
             <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#0052cc' }}>
               contacts
             </span>
-            <h1 style={{ fontSize: '22px', margin: 0, fontWeight: 700 }}>Gestión & Operaciones de Leads</h1>
+            <h1 style={{ fontSize: '22px', margin: 0, fontWeight: 700 }}>GestiÃ³n & Operaciones de Leads</h1>
           </div>
           <p style={{ color: '#5c6270', fontSize: '13px', margin: 0 }}>
             Base consolidada y unificada de prospectos captados en Meta Ads y TikTok Ads
@@ -199,7 +207,7 @@ export const LeadsView: React.FC<LeadsViewProps> = ({ onNavigateToVariables }) =
             title={
               !canExtractLeads && !isSuperAdmin
                 ? 'Debe comunicarse con el Administrador para configurar las variables y poder extraer los leads.'
-                : 'Consultar y extraer los prospectos más recientes de Meta Ads (Página y Campañas)'
+                : 'Consultar y extraer los prospectos mÃ¡s recientes de Meta Ads (PÃ¡gina y CampaÃ±as)'
             }
           >
             <span
@@ -237,7 +245,71 @@ export const LeadsView: React.FC<LeadsViewProps> = ({ onNavigateToVariables }) =
         </div>
       </div>
 
-      {/* Tarjetas Resumen / KPIs Armónicas */}
+      {/* Selector de Subpestañas: Leads Recibidos vs Formularios Instantáneos */}
+      <div
+        style={{
+          display: 'flex',
+          gap: '8px',
+          marginBottom: '20px',
+          borderBottom: '1px solid #edf0f2',
+          paddingBottom: '12px',
+        }}
+      >
+        <button
+          onClick={() => setActiveSubTab('leads')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 16px',
+            borderRadius: '6px',
+            border: 'none',
+            fontSize: '13px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            backgroundColor: activeSubTab === 'leads' ? '#0052cc' : '#f0f2f5',
+            color: activeSubTab === 'leads' ? '#ffffff' : '#475467',
+            transition: 'all 0.15s ease',
+          }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+            contacts
+          </span>
+          Prospectos Recibidos ({total})
+        </button>
+
+        <button
+          onClick={() => setActiveSubTab('forms')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 16px',
+            borderRadius: '6px',
+            border: 'none',
+            fontSize: '13px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            backgroundColor: activeSubTab === 'forms' ? '#0052cc' : '#f0f2f5',
+            color: activeSubTab === 'forms' ? '#ffffff' : '#475467',
+            transition: 'all 0.15s ease',
+          }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+            dynamic_form
+          </span>
+          Formularios de Lead Ads (Meta Instant Forms)
+        </button>
+      </div>
+
+      {activeSubTab === 'forms' ? (
+        <LeadFormsView
+          onNavigateToVariables={onNavigateToVariables}
+          onNavigateToLeads={() => setActiveSubTab('leads')}
+        />
+      ) : (
+        <>
+      {/* Tarjetas Resumen / KPIs ArmÃ³nicas */}
       <div
         style={{
           display: 'grid',
@@ -362,12 +434,12 @@ export const LeadsView: React.FC<LeadsViewProps> = ({ onNavigateToVariables }) =
             {verifiedContactCount.toLocaleString()}
           </div>
           <div style={{ fontSize: '11px', color: '#737685', marginTop: '2px' }}>
-            Con teléfono y/o correo verificado
+            Con telÃ©fono y/o correo verificado
           </div>
         </div>
       </div>
 
-      {/* Barra de Filtro y Búsqueda Armónica */}
+      {/* Barra de Filtro y BÃºsqueda ArmÃ³nica */}
       <div
         className="precision-card"
         style={{
@@ -384,7 +456,7 @@ export const LeadsView: React.FC<LeadsViewProps> = ({ onNavigateToVariables }) =
           <input
             type="text"
             className="precision-input"
-            placeholder="Buscar por nombre, email, teléfono o campaña..."
+            placeholder="Buscar por nombre, email, telÃ©fono o campaÃ±a..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{ paddingLeft: '38px', height: '40px', fontSize: '13px' }}
@@ -416,7 +488,7 @@ export const LeadsView: React.FC<LeadsViewProps> = ({ onNavigateToVariables }) =
                 color: '#8c919d',
                 padding: '2px',
               }}
-              title="Limpiar búsqueda"
+              title="Limpiar bÃºsqueda"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
                 close
@@ -491,8 +563,8 @@ export const LeadsView: React.FC<LeadsViewProps> = ({ onNavigateToVariables }) =
             </div>
             <p style={{ fontSize: '13px', color: '#5c6270', marginTop: '4px', maxWidth: '420px', margin: '6px auto 0' }}>
               {searchTerm
-                ? 'No hay registros que coincidan con el término de búsqueda ingresado.'
-                : 'Aún no hay prospectos captados. Ejecuta una sincronización desde el gestor de Crontab o sincroniza campañas.'}
+                ? 'No hay registros que coincidan con el tÃ©rmino de bÃºsqueda ingresado.'
+                : 'AÃºn no hay prospectos captados. Ejecuta una sincronizaciÃ³n desde el gestor de Crontab o sincroniza campaÃ±as.'}
             </p>
           </div>
         ) : (
@@ -507,13 +579,13 @@ export const LeadsView: React.FC<LeadsViewProps> = ({ onNavigateToVariables }) =
                     Prospecto / Nombre
                   </th>
                   <th style={{ padding: '12px 16px', fontWeight: 700, color: '#475467', fontSize: '11px', textTransform: 'uppercase' }}>
-                    Correo Electrónico
+                    Correo ElectrÃ³nico
                   </th>
                   <th style={{ padding: '12px 16px', fontWeight: 700, color: '#475467', fontSize: '11px', textTransform: 'uppercase' }}>
-                    Teléfono
+                    TelÃ©fono
                   </th>
                   <th style={{ padding: '12px 16px', fontWeight: 700, color: '#475467', fontSize: '11px', textTransform: 'uppercase' }}>
-                    Campaña / Formulario
+                    CampaÃ±a / Formulario
                   </th>
                   <th style={{ padding: '12px 16px', fontWeight: 700, color: '#475467', fontSize: '11px', textTransform: 'uppercase' }}>
                     Fecha Captura
@@ -617,7 +689,7 @@ export const LeadsView: React.FC<LeadsViewProps> = ({ onNavigateToVariables }) =
                               fontSize: '11px',
                             }}
                           >
-                            {lead.campaignId ? `Campaña: ${lead.campaignId}` : 'Sin ID de Campaña'}
+                            {getLeadCampaignId(lead) ? ('Campaña: ' + getLeadCampaignId(lead)) : 'Sin ID de Campaña'}
                           </span>
                         </div>
                       </td>
@@ -656,11 +728,14 @@ export const LeadsView: React.FC<LeadsViewProps> = ({ onNavigateToVariables }) =
               <span>
                 Mostrando <strong>{filteredLeads.length}</strong> de <strong>{total}</strong> leads registrados
               </span>
-              <span>Límite de consulta: 50 filas</span>
+              <span>LÃ­mite de consulta: 50 filas</span>
             </div>
           </div>
         )}
       </div>
+        </>
+      )}
     </div>
   );
 };
+
