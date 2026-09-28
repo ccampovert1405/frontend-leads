@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
@@ -10,6 +10,7 @@ export type NavigationTab =
   | 'leads'
   | 'campaigns'
   | 'lead-forms'
+  | 'dependencias'
   | 'scheduler'
   | 'variables'
   | 'swagger'
@@ -30,7 +31,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
   const [isMobileOpen, setIsMobileOpen] = React.useState(false);
   const [assignedRoutes, setAssignedRoutes] = React.useState<Set<string> | null>(null);
 
-  // Cargar menÃºs asignados dinÃ¡micamente desde el backend segÃºn el rol activo
+  // Cargar menús asignados dinámicamente desde el backend según el rol activo
   React.useEffect(() => {
     let isMounted = true;
     const loadMyMenus = async () => {
@@ -41,7 +42,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
           setAssignedRoutes(new Set(data.map((m: any) => m.ruta)));
         }
       } catch (err) {
-        console.warn('No se pudieron cargar los menÃºs asignados:', err);
+        console.warn('No se pudieron cargar los menús asignados:', err);
       }
     };
 
@@ -51,7 +52,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
     };
   }, [user?.role]);
 
-  // DefiniciÃ³n de Ã­tems del menÃº con permisos estilo RBAC
+  // Definición de ítems del menú con permisos estilo RBAC
   const menuSections = [
     {
       id: 'reports',
@@ -99,9 +100,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
         },
         {
           id: 'lead-forms' as NavigationTab,
-          label: 'Formularios Meta Ads',
+          label: 'Formularios de Leads',
           icon: 'dynamic_form',
           permission: 'meta.leads.forms.list',
+        },
+        {
+          id: 'dependencias' as NavigationTab,
+          label: 'Dependencias & Sucursales',
+          icon: 'store',
+          permission: 'dependencias.list',
         },
         {
           id: 'campaigns' as NavigationTab,
@@ -284,7 +291,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
                   fontWeight: 600,
                 }}
               >
-                PRECISIÃ“N OPERATIVA
+                PRECISIÓN OPERATIVA
               </div>
             </div>
           </div>
@@ -292,7 +299,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
           <button
             className="mobile-sidebar-close"
             onClick={() => setIsMobileOpen(false)}
-            aria-label="Cerrar navegaciÃ³n"
+            aria-label="Cerrar navegación"
           >
             <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
               close
@@ -303,24 +310,24 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
         {/* Menu Navigation Items with Accordion Behavior */}
         <div style={{ flex: 1, padding: '16px 12px', overflowY: 'auto' }}>
           {menuSections.map((section) => {
-            // Ocultar secciÃ³n si es exclusiva de Super Administrador
+            // Ocultar sección si es exclusiva de Super Administrador
             if (section.superAdminOnly && !isSuperAdmin) {
               return null;
             }
 
-            // Ocultar secciÃ³n si es exclusiva de Administrador y el usuario no es admin
+            // Ocultar sección si es exclusiva de Administrador y el usuario no es admin
             if (section.adminOnly && !isAdmin) {
               return null;
             }
 
-            // Filtrar Ã­tems que el usuario tiene asignados en BD y permitidos ver
+            // Filtrar ítems que el usuario tiene asignados en BD y permitidos ver
             const visibleItems = section.items.filter((item) => {
               if (section.superAdminOnly && !isSuperAdmin) return false;
               if (section.adminOnly && !isAdmin) return false;
 
-              // Si se cargaron los menÃºs asignados por rol desde BD, verificar coincidencia de ruta
+              // Si se cargaron los menús asignados por rol desde BD, verificar coincidencia de ruta
               if (assignedRoutes && !isSuperAdmin) {
-                // El tutorial estÃ¡ disponible por defecto para cualquier rol
+                // El tutorial está disponible por defecto para cualquier rol
                 if (item.id !== 'tutorial' && item.id !== 'lead-forms' && !assignedRoutes.has(item.id)) {
                   return false;
                 }
@@ -470,7 +477,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
               logout
             </span>
-            Cerrar SesiÃ³n
+            Cerrar Sesión
           </button>
         </div>
       </aside>
@@ -483,7 +490,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
             <button
               className="mobile-hamburger-btn"
               onClick={() => setIsMobileOpen(true)}
-              aria-label="Abrir MenÃº de NavegaciÃ³n"
+              aria-label="Abrir Menú de Navegación"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
                 menu
@@ -500,7 +507,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ activeTab, setActiveTab, c
                 {activeTab === 'tactical' && 'Vista Táctica (Meta vs. TikTok)'}
                 {activeTab === 'creatives' && 'Creativos & Audiencias'}
                 {activeTab === 'matrix' && 'Matriz de Decisiones'}
-                {activeTab === 'leads' && 'Leads Unificados'}
+                {activeTab === 'leads' && 'Gestión de Leads (Meta & TikTok)'}
+                {activeTab === 'lead-forms' && 'Formularios de Captura de Leads'}
+                {activeTab === 'dependencias' && 'Dependencias & Sucursales'}
                 {activeTab === 'campaigns' && 'Campañas Publicitarias'}
                 {activeTab === 'scheduler' && 'Configuración Crontab'}
                 {activeTab === 'variables' && 'Variables del Sistema & Plataformas'}

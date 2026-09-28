@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAppToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
@@ -164,11 +164,11 @@ export const LeadFormsView: React.FC<LeadFormsViewProps> = ({
               dynamic_form
             </span>
             <h1 style={{ fontSize: '24px', fontWeight: 700, margin: 0 }}>
-              Formularios de Lead Ads (Instant Forms)
+              Formularios de Captura de Leads
             </h1>
           </div>
           <p style={{ color: '#5c6270', fontSize: '13.5px', marginTop: '4px' }}>
-            Catálogo de formularios instantáneos de Meta Ads vinculados a tus Páginas de Facebook/Instagram
+            Catálogo de formularios instantáneos (Instant Forms) vinculados a tus páginas y campañas publicitarias
           </p>
         </div>
 
@@ -231,7 +231,7 @@ export const LeadFormsView: React.FC<LeadFormsViewProps> = ({
             }}
             title={
               !canExtractLeads && !isSuperAdmin
-                ? 'Variables de Meta Ads no configuradas'
+                ? 'Variables no configuradas'
                 : 'Sincronizar prospectos de todos los formularios'
             }
           >

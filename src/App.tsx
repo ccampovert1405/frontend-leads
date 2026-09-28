@@ -1,10 +1,11 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from './context/AuthContext';
 import { LoginView } from './views/LoginView';
 import { AppLayout, NavigationTab } from './components/AppLayout';
 import { DashboardView } from './views/DashboardView';
 import { LeadsView } from './views/LeadsView';
 import { LeadFormsView } from './views/LeadFormsView';
+import { DependenciasView } from './views/DependenciasView';
 import { CampaignsView } from './views/CampaignsView';
 import { SyncScheduleView } from './views/SyncScheduleView';
 import { SwaggerRbacView } from './views/SwaggerRbacView';
@@ -36,6 +37,7 @@ export const App: React.FC = () => {
           onNavigateToLeads={() => setActiveTab('leads')}
         />
       )}
+      {activeTab === 'dependencias' && <DependenciasView />}
       {activeTab === 'campaigns' && <CampaignsView onNavigateToVariables={() => setActiveTab('variables')} />}
       {activeTab === 'scheduler' && (isAdmin ? <SyncScheduleView onNavigateToVariables={() => setActiveTab('variables')} /> : <DashboardView initialSubTab="executive" />)}
       {activeTab === 'swagger' && (hasPermission('swagger.read') || isAdmin ? <SwaggerRbacView /> : <DashboardView initialSubTab="executive" />)}

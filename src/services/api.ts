@@ -121,4 +121,50 @@ export const menusApi = {
   delete: (id: string) => api.delete<{ success: boolean; message: string }>(`/menus/${id}`),
 };
 
+
+export interface ProvinciaDto {
+  id: number;
+  provincia: string;
+  cantones?: CantonDto[];
+}
+
+export interface CantonDto {
+  id: number;
+  canton: string;
+  idProvincia: number;
+  provincia?: ProvinciaDto;
+}
+
+export interface DependenciaDto {
+  id: string;
+  nombre: string;
+  codigo?: string | null;
+  idProvincia: number;
+  idCanton?: number | null;
+  direccion?: string | null;
+  telefono?: string | null;
+  correo?: string | null;
+  estado: 'ACTIVO' | 'INACTIVO';
+  provincia?: { id: number; provincia: string };
+  canton?: { id: number; canton: string };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const geoApi = {
+  getProvincias: () => api.get<ProvinciaDto[]>('/geo/provincias'),
+  getCantones: (provinciaId?: number) =>
+    api.get<CantonDto[]>('/geo/cantones', { params: { provinciaId } }),
+};
+
+export const dependenciasApi = {
+  getAll: (params?: { search?: string; idProvincia?: number; estado?: string }) =>
+    api.get<DependenciaDto[]>('/dependencias', { params }),
+  getById: (id: string) => api.get<DependenciaDto>('/dependencias/' + id),
+  create: (data: Partial<DependenciaDto>) => api.post<DependenciaDto>('/dependencias', data),
+  update: (id: string, data: Partial<DependenciaDto>) =>
+    api.put<DependenciaDto>('/dependencias/' + id, data),
+  delete: (id: string) => api.delete('/dependencias/' + id),
+};
+
 export default api;
